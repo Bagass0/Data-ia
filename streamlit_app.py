@@ -275,6 +275,13 @@ with col3:
         <div class="metric-label">Ventes moyennes</div>
     </div>
     """, unsafe_allow_html=True)
+    # Ajout intervalle de confiance avec numpy
+    sales = df_filtered["Global_Sales"].dropna()
+    mean_sales = np.mean(sales)
+    std_sales = np.std(sales)
+    n = len(sales)
+    conf_interval = 1.96 * std_sales / np.sqrt(n)  # 95% confidence
+    st.markdown(f"<div style='font-size:0.9rem;color:#1976d2;'>IC 95% : ±{conf_interval:.2f}M</div>", unsafe_allow_html=True)
 
 with col4:
     top_genre = df_filtered.groupby("Genre")["Global_Sales"].sum().idxmax()
@@ -328,7 +335,7 @@ if selected == "📊 Dashboard":
     # --- Top 10 jeux ---
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
     st.subheader("🏆 Top 10 jeux par ventes globales")
-    top_games = df_filtered.sort_values("Global_Sales", ascending=False).head(10)
+    top_games = df_filtered.sort_values(by="Global_Sales", ascending=False).head(10)
 
     fig2 = px.bar(
         top_games,
@@ -407,15 +414,13 @@ elif selected == "🎯 Analyse":
 
     # --- Heatmap des ventes par genre et plateforme ---
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-    st.subheader("🔥 Heatmap Genre vs Plateforme")
+    st.subheader("🔥 Heatmap Genre vs Plateforme (Plotly)")
     # Créer une matrice de corrélation
     heatmap_data = df_filtered.groupby(["Genre", "Platform"])["Global_Sales"].sum().reset_index()
     heatmap_pivot = heatmap_data.pivot(index="Genre", columns="Platform", values="Global_Sales").fillna(0)
-
     # Sélectionner les top plateformes pour éviter un graphique trop chargé
     top_platforms = df_filtered.groupby("Platform")["Global_Sales"].sum().sort_values(ascending=False).head(8).index
     heatmap_pivot = heatmap_pivot[top_platforms]
-
     fig5 = px.imshow(
         heatmap_pivot,
         aspect="auto",
@@ -430,6 +435,16 @@ elif selected == "🎯 Analyse":
         paper_bgcolor='rgba(0,0,0,0)'
     )
     st.plotly_chart(fig5, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    # Ajout heatmap matplotlib/seaborn
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    st.subheader("🔥 Heatmap Genre vs Plateforme (Seaborn/Matplotlib)")
+    top5_platforms = df_filtered.groupby("Platform")["Global_Sales"].sum().sort_values(ascending=False).head(5).index
+    heatmap_data2 = df_filtered[df_filtered["Platform"].isin(list(top5_platforms))]
+    pivot2 = heatmap_data2.pivot_table(index="Genre", columns="Platform", values="Global_Sales", aggfunc="sum", fill_value=0)
+    fig_sea, ax = plt.subplots(figsize=(8, 5))
+    sns.heatmap(pivot2, annot=True, fmt=".1f", cmap="Blues", ax=ax)
+    st.pyplot(fig_sea)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # --- Note critique vs ventes (si dispo) ---
@@ -508,6 +523,10 @@ elif selected == "🎯 Analyse":
                 paper_bgcolor='rgba(0,0,0,0)'
             )
             st.plotly_chart(fig9, use_container_width=True)
+            # Ajout donut chart plotly.graph_objects
+            fig_go = go.Figure(data=[go.Pie(labels=list(region_sales.keys()), values=list(region_sales.values()), hole=.4)])
+            fig_go.update_layout(title_text="Répartition des ventes par région (Plotly GO)")
+            st.plotly_chart(fig_go, use_container_width=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -521,7 +540,7 @@ elif selected == "📈 Tendances":
     # Analyse de l'évolution des genres par année
     genre_year = df_filtered.groupby(["Year", "Genre"])["Global_Sales"].sum().reset_index()
     top_genres = df_filtered.groupby("Genre")["Global_Sales"].sum().sort_values(ascending=False).head(6).index
-    genre_year_filtered = genre_year[genre_year["Genre"].isin(top_genres)]
+    genre_year_filtered = genre_year[genre_year["Genre"].isin(list(top_genres))]
 
     fig7 = px.line(
         genre_year_filtered,
@@ -548,7 +567,7 @@ elif selected == "📈 Tendances":
     st.subheader("🎮 Cycles de vie des plateformes")
     platform_year = df_filtered.groupby(["Year", "Platform"])["Global_Sales"].sum().reset_index()
     top_platforms_trend = df_filtered.groupby("Platform")["Global_Sales"].sum().sort_values(ascending=False).head(8).index
-    platform_year_filtered = platform_year[platform_year["Platform"].isin(top_platforms_trend)]
+    platform_year_filtered = platform_year[platform_year["Platform"].isin(list(top_platforms_trend))]
 
     fig_platform = px.line(
         platform_year_filtered,
