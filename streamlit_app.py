@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 from streamlit_option_menu import option_menu
 import numpy as np
 
@@ -221,7 +220,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Filtres
-    st.markdown("### �️ Filtres")
+    st.markdown("### 🔍 Filtres")
     year_range = st.slider("Année de sortie", int(df["Year"].min()), int(df["Year"].max()), (2000, 2015))
     selected_platforms = st.multiselect("Plateforme(s)", options=sorted(df["Platform"].unique()), default=["PS2", "X360", "PC"])
     selected_genres = st.multiselect("Genre(s)", options=sorted(df["Genre"].unique()), default=["Action", "Shooter", "Sports"])
