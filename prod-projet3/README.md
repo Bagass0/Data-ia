@@ -1,92 +1,87 @@
-# Projet de Prédiction de Prix de Maison
+# 🔍 Agent de Recherche Intelligent
 
-Ce projet comprend une API FastAPI pour les prédictions et une interface Streamlit qui consomme cette API.
+Agent de recherche moderne qui utilise un LLM pour générer un plan de recherche, puis scrappe des sites web réels pour fournir une synthèse intelligente.
 
-## Architecture du projet
+## 🏗️ Architecture
 
 ```
 prod-projet3/
-├── assets/
-│   ├── houses.csv              # Dataset d'entraînement
-│   ├── regression.joblib       # Modèle ML entraîné
-│   └── train_model.py          # Script d'entraînement du modèle
-├── backend/                    # (À créer - organisation future)
-│   ├── main.py                 # API FastAPI
-│   └── prediction_service.py   # Service de prédiction
-├── main.py                     # API FastAPI (racine temporaire)
-├── prediction_service.py       # Service de prédiction (racine temporaire)
-├── model_app.py                # Interface Streamlit
-└── requirements.txt            # Dépendances Python
+├── research_agent.py       # 🧠 Agent de recherche avec LLM + scraping
+├── research_app.py         # � Interface Streamlit moderne
+├── requirements.txt        # 📦 Dépendances
+└── README.md              # 📖 Documentation
 ```
 
-## Installation
+## 🚀 Installation et lancement
 
-1. Installer les dépendances :
 ```bash
+# Installation des dépendances
 pip install -r requirements.txt
+
+# Lancement de l'application
+streamlit run research_app.py
 ```
 
-## Utilisation
+**Accès :** http://localhost:8501
 
-### 1. Démarrer l'API FastAPI
+## 🧠 Fonctionnement de l'Agent
 
-```bash
-uvicorn main:app --reload --host 127.0.0.1 --port 8000
-```
+### 1. 📝 Plan LLM Intelligent
+L'agent analyse votre requête et détermine :
+- **Intent** : Type de recherche (comparaison, prix, tutoriel, actualités...)
+- **Sites cibles** : Amazon, forums, sites d'actualités selon le besoin
+- **Stratégies** : Méthodes de recherche adaptées
 
-L'API sera accessible sur : http://127.0.0.1:8000
+### 2. 🌐 Recherche Web Réelle
+- Utilise **DuckDuckGo** pour la recherche
+- Filtre les résultats selon le plan LLM
+- Sélectionne les sites les plus pertinents
 
-### 2. Démarrer l'interface Streamlit
+### 3. 📖 Scraping Intelligent
+- Extrait le contenu réel des sites web
+- Parse HTML avec BeautifulSoup
+- Gère les erreurs et timeouts
 
-```bash
-streamlit run model_app.py --server.port 8501
-```
+### 4. 🤖 Synthèse IA
+- Analyse le contenu scrapé
+- Génère un résumé intelligent
+- Extrait les points clés et recommandations
 
-L'interface sera accessible sur : http://localhost:8501
+## 🎯 Exemples de recherches
 
-## Endpoints de l'API
+| Type | Exemple | Sites ciblés |
+|------|---------|--------------|
+| �️ **Produits** | "meilleurs casques moto 2025" | Amazon, Cdiscount, tests |
+| 💰 **Prix** | "prix immobilier Paris" | Sites immobiliers, forums |
+| � **Tutoriels** | "comment apprendre Python" | Sites éducatifs, YouTube |
+| � **Actualités** | "actualités IA 2025" | Sites d'actualités, blogs |
 
-- `GET /` - Route de base
-- `GET /health` - Vérification de santé
-- `GET /docs` - Documentation Swagger automatique
-- `GET /predictions/samples` - Exemples de prédictions
-- `POST /predict` - Prédiction personnalisée
+## 🛠️ Technologies utilisées
 
-### Exemple d'utilisation de l'API
+- **Streamlit** - Interface web moderne
+- **DuckDuckGo Search** - Recherche web réelle
+- **BeautifulSoup4** - Parsing HTML
+- **Requests** - HTTP et scraping
+- **Intelligence artificielle** - Analyse et synthèse
 
-```bash
-curl -X POST "http://127.0.0.1:8000/predict" \
-     -H "Content-Type: application/json" \
-     -d '{"size": 100, "nb_rooms": 3, "garden": 1}'
-```
+## � Fonctionnalités Interface
 
-## Fonctionnalités
+- ✅ Design moderne et responsive
+- ✅ Recherche en temps réel avec progress
+- ✅ Plan LLM visible et détaillé
+- ✅ Contenu scrapé affiché par source
+- ✅ Métriques de qualité (confiance, pertinence)
+- ✅ Synthèse intelligente avec recommandations
+- ✅ Exemples interactifs
 
-### Interface Streamlit
-- ✅ Connexion automatique à l'API
-- ✅ Vérification du statut de l'API
-- ✅ Formulaire interactif pour les prédictions
-- ✅ Affichage des résultats avec détails
-- ✅ Tests de connexion API
-- ✅ Exemples de prédictions depuis l'API
+## 🔧 Configuration avancée
 
-### API FastAPI
-- ✅ Prédictions en temps réel
-- ✅ Documentation automatique
-- ✅ Validation des données avec Pydantic
-- ✅ Gestion d'erreurs
-- ✅ Endpoints de test et d'exemples
+L'agent peut être étendu pour :
+- Intégrer des APIs LLM réelles (OpenAI, Claude...)
+- Ajouter plus de sources de données
+- Implémenter du caching intelligent
+- Ajouter des filtres de contenu
 
-## Technologies utilisées
+---
 
-- **FastAPI** : API backend
-- **Streamlit** : Interface utilisateur
-- **Requests** : Communication HTTP
-- **Pandas** : Manipulation des données
-- **Scikit-learn** : Machine Learning
-- **Joblib** : Sérialisation des modèles
-- **Uvicorn** : Serveur ASGI pour FastAPI
-
-## Notes
-
-L'application Streamlit communique avec l'API FastAPI via des requêtes HTTP. Assurez-vous que l'API est démarrée avant d'utiliser l'interface Streamlit.
+*� Agent de Recherche Intelligent - LLM + Scraping Réel*

@@ -1,7 +1,9 @@
-pandas
-scikit-learn
-joblib
-fastapi
-uvicorn[standard]
-requests
 streamlit
+requests
+beautifulsoup4
+lxml
+openai
+selenium
+webdriver-manager
+ddgs
+mistralai
