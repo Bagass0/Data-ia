@@ -21,7 +21,7 @@ class IntelligentResearchAgent:
         
         # Initialisation du client Mistral
         self.mistral_client = Mistral(api_key=mistral_api_key)
-        self.model = "mistral-small"  # Modèle équilibré entre performance et coût
+        self.model = "mistral-large-latest"  # Modèle le plus performant
         
     def generate_search_plan_with_llm(self, query: str) -> Dict[str, Any]:
         """Génère un plan de recherche intelligent avec Mistral AI"""
