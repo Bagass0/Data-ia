@@ -1,9 +1,5 @@
 streamlit
 requests
 beautifulsoup4
-lxml
-openai
-selenium
-webdriver-manager
-ddgs
+duckduckgo-search
 mistralai

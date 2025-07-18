@@ -510,145 +510,80 @@ if search_button and query:
             st.markdown("### 🔄 Recherche en cours...")
             progress_bar = st.progress(0)
         
-        # Étape 1: Génération du plan LLM
-        with status_placeholder.container():
-            st.info("🧠 Génération du plan de recherche avec LLM...")
-        
         # Mise à jour barre latérale
         sidebar_progress = st.sidebar.empty()
         with sidebar_progress.container():
             st.markdown("### 🔄 Recherche en cours")
-            st.markdown("**Étape 1/5:** Génération du plan LLM...")
-            st.progress(0.2)
+            st.markdown("**Étape 1/3:** Génération du plan LLM...")
+            st.progress(0.33)
         
-        progress_bar.progress(20)
-        time.sleep(1)
-        
-        # Étape 2: Recherche web
-        with status_placeholder.container():
-            st.info("🌐 Recherche sur le web...")
-        
-        with sidebar_progress.container():
-            st.markdown("### 🔄 Recherche en cours")
-            st.markdown("**Étape 2/5:** Recherche web...")
-            st.progress(0.4)
-        
-        progress_bar.progress(40)
-        time.sleep(1)
-        
-        # Étape 3: Filtrage des sites
-        with status_placeholder.container():
-            st.info("🎯 Filtrage des sites pertinents...")
-        
-        with sidebar_progress.container():
-            st.markdown("### 🔄 Recherche en cours")
-            st.markdown("**Étape 3/5:** Filtrage des sites...")
-            st.progress(0.6)
-        
-        progress_bar.progress(60)
-        time.sleep(1)
-        
-        # Étape 4: Scraping
-        with status_placeholder.container():
-            st.info("📖 Extraction du contenu des sites...")
-        
-        with sidebar_progress.container():
-            st.markdown("### 🔄 Recherche en cours")
-            st.markdown("**Étape 4/5:** Scraping des sites...")
-            st.progress(0.8)
-        
-        progress_bar.progress(80)
-        
-        # Exécution de la recherche complète
+        # Exécution de la recherche étape par étape
         try:
-            results = agent.full_research(query)
-            
-            # Mise à jour des statistiques de session
-            st.session_state.search_count += 1
-            st.session_state.total_sites_scraped += len(results["scraped_contents"])
-            st.session_state.last_search_time = time.strftime("%H:%M:%S")
-            
-            # Sauvegarde des résultats pour la barre latérale
-            synthesis = results["synthesis"]
-            plan = results["research_plan"]
-            st.session_state.last_research_results = {
-                'query': query,
-                'intent': plan["analysis"]["intent"].replace("_", " ").title(),
-                'confidence': synthesis['confidence'],
-                'sites_count': len(results["search_results"]),
-                'scraped_count': len(results["scraped_contents"])
-            }
-            
+            # ÉTAPE 1: Génération du plan LLM
             with status_placeholder.container():
-                st.info("🤖 Synthèse intelligente avec LLM...")
+                st.info("🧠 Génération du plan de recherche avec LLM...")
             
-            with sidebar_progress.container():
-                st.markdown("### 🔄 Recherche en cours")
-                st.markdown("**Étape 5/5:** Synthèse avec LLM...")
-                st.progress(1.0)
+            research_plan = agent.generate_search_plan_with_llm(query)
             
-            progress_bar.progress(100)
-            time.sleep(0.5)
-            
-            # Nettoyage des indicateurs
-            progress_placeholder.empty()
+            # Nettoyage du status
             status_placeholder.empty()
-            sidebar_progress.empty()
+            time.sleep(0.5)  # Petit délai pour visualiser l'étape
             
-            # Affichage des résultats
+            # AFFICHAGE DU PLAN GÉNÉRÉ
             st.markdown("---")
-            st.markdown("## 📊 Résultats de la recherche")
+            st.markdown("## 🧠 Plan de recherche généré par l'IA")
             
-            # Métriques
-            synthesis = results["synthesis"]
-            plan = results["research_plan"]
-            
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("🎯 Sites scrapés", len(results["scraped_contents"]))
-            with col2:
-                st.metric("📊 Confiance", f"{synthesis['confidence']:.0%}")
-            with col3:
-                st.metric("🧠 Type détecté", plan["analysis"]["intent"].replace("_", " ").title())
-            with col4:
-                st.metric("📈 Sources", len(results["search_results"]))
-            
-            # Plan de recherche LLM
-            with st.expander("🧠 Plan généré par LLM", expanded=True):
-                st.markdown("**Intention détectée:** " + plan["analysis"]["intent"].replace("_", " ").title())
+            with st.expander("🎯 Plan détaillé", expanded=True):
+                st.markdown(f"**Intention détectée:** {research_plan['analysis']['intent'].replace('_', ' ').title()}")
                 
                 col1, col2 = st.columns(2)
                 with col1:
                     st.markdown("**Sites cibles:**")
-                    for site in plan["target_sites"]:
+                    for site in research_plan["target_sites"]:
                         st.markdown(f"- {site['name']} ({site['search_type']})")
                 
                 with col2:
                     st.markdown("**Stratégies de recherche:**")
-                    for strategy in plan["search_strategy"]:
+                    for strategy in research_plan["search_strategy"]:
                         st.markdown(f"- {strategy}")
+                
+                st.markdown("**Requêtes à utiliser:**")
+                for query_var in research_plan["search_queries"]:
+                    st.markdown(f"- `{query_var}`")
             
-            # Synthèse principale
-            st.markdown('<div class="result-card">', unsafe_allow_html=True)
-            st.markdown("### 📝 Synthèse intelligente")
-            st.markdown(synthesis["summary"])
+            # ÉTAPE 2: Recherche web et scraping
+            with sidebar_progress.container():
+                st.markdown("### 🔄 Recherche en cours")
+                st.markdown("**Étape 2/3:** Recherche web et scraping...")
+                st.progress(0.66)
             
-            if synthesis["key_points"]:
-                st.markdown("#### 🔑 Points clés:")
-                for point in synthesis["key_points"]:
-                    st.markdown(f"• {point}")
+            with status_placeholder.container():
+                st.info("🌐 Recherche web et extraction de contenu...")
             
-            if synthesis["recommendations"]:
-                st.markdown("#### 💡 Recommandations:")
-                for rec in synthesis["recommendations"]:
-                    st.markdown(f"• {rec}")
+            # Recherche web
+            search_results = []
+            for search_query in research_plan["search_queries"][:3]:
+                results_query = agent.search_web(search_query, max_results=8)
+                search_results.extend(results_query)
             
-            st.markdown('</div>', unsafe_allow_html=True)
+            # Filtrage selon le plan
+            filtered_results = agent.filter_relevant_sites(search_results, research_plan["target_sites"])
             
-            # Sources scrapées
-            st.markdown("### 📚 Sites analysés")
+            # Scraping des sites pertinents
+            scraped_contents = []
+            for result in filtered_results[:6]:
+                scraped_data = agent.scrape_content(result["url"])
+                scraped_data["search_result"] = result
+                scraped_contents.append(scraped_data)
             
-            for i, content in enumerate(results["scraped_contents"], 1):
+            # Nettoyage du status
+            status_placeholder.empty()
+            time.sleep(0.5)  # Petit délai pour visualiser l'étape
+            
+            # AFFICHAGE DES SITES SCRAPÉS
+            st.markdown("## � Sites analysés")
+            
+            for i, content in enumerate(scraped_contents, 1):
                 search_result = content.get("search_result", {})
                 
                 with st.expander(f"📄 Source {i}: {content['title'][:50]}..." if len(content['title']) > 50 else f"📄 Source {i}: {content['title']}"):
@@ -674,19 +609,81 @@ if search_button and query:
                     else:
                         st.warning(f"Contenu non accessible: {content['content']}")
             
+            # ÉTAPE 3: Synthèse avec LLM
+            with sidebar_progress.container():
+                st.markdown("### 🔄 Recherche en cours")
+                st.markdown("**Étape 3/3:** Synthèse avec LLM...")
+                st.progress(1.0)
+            
+            with status_placeholder.container():
+                st.info("🤖 Synthèse intelligente avec LLM...")
+            
+            synthesis = agent.synthesize_with_llm(query, scraped_contents)
+            
+            # Nettoyage final
+            progress_placeholder.empty()
+            status_placeholder.empty()
+            sidebar_progress.empty()
+            
+            # AFFICHAGE DE LA SYNTHÈSE FINALE
+            st.markdown("## 📝 Synthèse intelligente")
+            
+            # Métriques finales
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("🎯 Sites scrapés", len(scraped_contents))
+            with col2:
+                st.metric("📊 Confiance", f"{synthesis['confidence']:.0%}")
+            with col3:
+                st.metric("🧠 Type détecté", research_plan["analysis"]["intent"].replace("_", " ").title())
+            with col4:
+                st.metric("📈 Sources", len(filtered_results))
+            
+            # Synthèse principale
+            st.markdown('<div class="result-card">', unsafe_allow_html=True)
+            st.markdown("### 🎯 Résumé de la recherche")
+            st.markdown(synthesis["summary"])
+            
+            if synthesis["key_points"]:
+                st.markdown("#### 🔑 Points clés:")
+                for point in synthesis["key_points"]:
+                    st.markdown(f"• {point}")
+            
+            if synthesis["recommendations"]:
+                st.markdown("#### 💡 Recommandations:")
+                for rec in synthesis["recommendations"]:
+                    st.markdown(f"• {rec}")
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Mise à jour des statistiques de session
+            st.session_state.search_count += 1
+            st.session_state.total_sites_scraped += len(scraped_contents)
+            st.session_state.last_search_time = time.strftime("%H:%M:%S")
+            
+            # Sauvegarde des résultats pour la barre latérale
+            st.session_state.last_research_results = {
+                'query': query,
+                'intent': research_plan["analysis"]["intent"].replace("_", " ").title(),
+                'confidence': synthesis['confidence'],
+                'sites_count': len(filtered_results),
+                'scraped_count': len(scraped_contents)
+            }
+            
             # Données techniques (optionnel)
             with st.expander("🔬 Données techniques"):
                 tab1, tab2 = st.tabs(["Plan LLM", "Résultats bruts"])
                 
                 with tab1:
-                    st.json(results["research_plan"])
+                    st.json(research_plan)
                 
                 with tab2:
-                    st.json(results["search_results"])
+                    st.json(filtered_results)
                     
         except Exception as e:
             progress_placeholder.empty()
             status_placeholder.empty()
+            sidebar_progress.empty()
             st.error(f"❌ Erreur lors de la recherche: {str(e)}")
             st.info("💡 Vérifiez votre connexion internet et réessayez")
 
