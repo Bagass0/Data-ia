@@ -30,6 +30,7 @@ st.markdown("""
     /* Suppression complète de l'espace en haut de page */
     .stApp > header {
         height: 0;
+        display: none;
     }
     
     .stApp {
@@ -40,6 +41,19 @@ st.markdown("""
     div[data-testid="stToolbar"] {
         display: none;
     }
+    
+    /* Suppression des marges et paddings du conteneur principal */
+    .block-container {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Suppression de l'espace autour du contenu principal */
+    .main .block-container {
+        padding-top: 1rem !important;
+        max-width: 100%;
+    }
 
     /* Header principal avec gradient moderne - collé au haut */
     .main-header {
@@ -48,7 +62,7 @@ st.markdown("""
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         color: white;
         border-radius: 20px;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         margin-top: 0;
         box-shadow: var(--shadow-lg);
         position: relative;
@@ -78,13 +92,13 @@ st.markdown("""
         margin: 0;
     }
     
-    /* Container de recherche avec style Glass Morphism */
+    /* Container de recherche avec style Glass Morphism - collé au header */
     .search-container {
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
         padding: 2.5rem;
         border-radius: 24px;
-        margin: 2rem 0;
+        margin: -0.5rem 0 2rem 0 !important;
         border: 1px solid rgba(255, 255, 255, 0.2);
         box-shadow: var(--shadow-lg);
         position: relative;
@@ -391,7 +405,7 @@ with st.sidebar:
     st.markdown("### ⚙️ Capacités")
     st.markdown("""
     **🧠 LLM Mistral:**
-    - Modèle: `mistral-large`
+    - Modèle: `mistral-small-latest`
     - Plans intelligents
     - Synthèse auto
     
